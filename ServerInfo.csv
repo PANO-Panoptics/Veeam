@@ -1,0 +1,6 @@
+Name,Path,FolderInclude,FolderExclude
+pano-veeam01,G$,Clarion,None
+panglveeam03,E$,All,None
+panglveeam03,F$\Backups,All,Lille Square
+
+

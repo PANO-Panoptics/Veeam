@@ -3,9 +3,6 @@
 # Servers = pano-veeam01, panglveeam03
 
 # Get Backup Files
-$Servers = "PanGlVeeam03"
-$DriveLetter = "F$"
-$Subfolder = "Backups"
 
 Function Get-BackupName ($FileName)
 {
@@ -13,6 +10,24 @@ Function Get-BackupName ($FileName)
     $BackupName = select-string -InputObject $FileName -Pattern $ServerName -List | % { $_.Matches } | % { $_.Value }
     Return $BackupName
 }
+
+$Imports = Import-Csv "C:\Users\JuddDavey\Documents\GitHub\Pano-Internal\Veeam\Veeam\ServerInfo.csv"
+
+foreach ($Import in $Imports[1])
+{
+    $ServerName = $Import.Name
+    $Path = $Import.Path
+    $FolderInclude = $Import.FolderInclude
+    $FolderExclude = $Import.FolderExclude
+    
+    $Files = Get-ChildItem "FileSystem::\\$ServerName\$Path\" -Recurse -Include $FolderInclude -Exclude $FolderExclude
+
+
+
+
+}
+
+
 
 
 $Files = Get-ChildItem "FileSystem::\\$Server\$DriveLetter\$Subfolder" -Recurse 
