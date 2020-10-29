@@ -72,7 +72,7 @@ foreach ($Import in $Imports)
                 $Hash = @{
                     VeeamServer = $ServerName
                     Path = $Path
-                    Type = "Reverse-Incredmental Backup)"
+                    Type = "Reverse-Incredmental Backup"
                     Name = $BackupFile.Name
                     BackupName = $NewName
                     SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -109,7 +109,7 @@ foreach ($Import in $Imports)
                 $Hash = @{
                     VeeamServer = $ServerName
                     Path = $Path
-                    Type = "Seed"
+                    Type = "Full Backup (Seed)"
                     Name = $BackupFile.Name
                     BackupName = ($BackupFile.Name.Split("_")[0]).trim()
                     SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -121,7 +121,7 @@ foreach ($Import in $Imports)
                 $Hash = @{
                     VeeamServer = $ServerName
                     Path = $Path
-                    Type = "Incredmental"
+                    Type = "Reverse-Incredmental Backup"
                     BackupName = ($BackupFile.Name.Split('(\s+)-')[0]).trim() # split on <space> + - (e.g. " -") for some reason, instead of just a space character, i had to use \s+ regular expression
                     Name = $BackupFile.Name
                     SizeGB = $backupFile.Length / 1024 / 1024 / 1024
