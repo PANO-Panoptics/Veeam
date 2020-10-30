@@ -1,4 +1,8 @@
 Name,Path,FolderInclude,FolderExclude
 pano-veeam01,G$,Clarion,
+pano-veeam02,N$\Backups,Clarion,
+pano-veeam02,Q$,Clarion,
+pano-veeam02,R$,Clarion,
+pano-veeam02,S$\Backups,Clarion,
 panglveeam03,E$,,
 panglveeam03,F$\Backups,,Lille Square
