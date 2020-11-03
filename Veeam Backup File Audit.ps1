@@ -4,28 +4,29 @@
 
 Function Get-BackupName ($FileName)
 {
-    $ServerName = [regex]"[A-Za-z]{2}[0-9]{1}-[A-Za-z0-9]{1,15}"
+    $ServerName = [regex]"[A-Za-z]{2}[0-9]{1}-[A-Za-z0-9]{1,15}" # Server Name Regex
     $BackupName = select-string -InputObject $FileName -Pattern $ServerName -List | % { $_.Matches } | % { $_.Value }
     Return $BackupName
 }
 
+
 $BackupObj = @()
-$Imports = Import-Csv ".\ServerInfo.csv"
+$Imports = Import-Csv "Z:\Git\Veeam\ServerInfo.csv"
 
 foreach ($Import in $Imports)
 {
     $ServerName = $Import.Name
     $Path = $Import.Path
-    $FolderInclude = $Import.FolderInclude
-    $FolderExclude = $Import.FolderExclude
     
     # Get folders within folder
-    $Folders = Get-ChildItem "FileSystem::\\$ServerName\$Path\"
+    $Folders = Get-ChildItem "FileSystem::\\$ServerName\$Path\" | Where-Object {$_.PSIsContainer -eq $true}
 
     Foreach ($folder in $Folders | Where-Object {$_.name -ne "VeeamConfigBackup"})
     {
         if (!$FolderInclude -and !$FolderExclude)
         {
+    $FolderInclude = $Import.FolderInclude
+    $FolderExclude = $Import.FolderExclude
             "1"
             $Files = Get-ChildItem "FileSystem::$($Folder.fullname)\" -Recurse
         }
@@ -77,7 +78,7 @@ foreach ($Import in $Imports)
                         VeeamServer = $ServerName
                         FolderName = $FolderName
                         Path = $Path
-                        Type = "Reverse-Incredmental Backup"
+                        Type = "Reverse-Incremental Backup"
                         Name = $BackupFile.Name
                         BackupName = $NewName
                         SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -89,7 +90,7 @@ foreach ($Import in $Imports)
                         VeeamServer = $ServerName
                         FolderName = $FolderName
                         Path = $Path
-                        Type = "Incredmental Backup"
+                        Type = "Incremental Backup"
                         Name = $BackupFile.Name
                         BackupName = $NewName
                         SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -130,7 +131,7 @@ foreach ($Import in $Imports)
                         VeeamServer = $ServerName
                         FolderName = $FolderName
                         Path = $Path
-                        Type = "Reverse-Incredmental Backup"
+                        Type = "Reverse-Incremental Backup"
                         BackupName = ($BackupFile.Name.Split('(\s+)-')[0]).trim() # split on <space> + - (e.g. " -") for some reason, instead of just a space character, i had to use \s+ regular expression
                         Name = $BackupFile.Name
                         SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -142,7 +143,7 @@ foreach ($Import in $Imports)
                         VeeamServer = $ServerName
                         FolderName = $FolderName
                         Path = $Path
-                        Type = "Incredmental"
+                        Type = "Incremental"
                         BackupName = ($BackupFile.Name.Split('(\s+)-')[0]).trim() # split on <space> + - (e.g. " -") for some reason, instead of just a space character, i had to use \s+ regular expression
                         Name = $BackupFile.Name
                         SizeGB = $backupFile.Length / 1024 / 1024 / 1024
@@ -196,10 +197,10 @@ foreach ($Item in $VeeamReport)
 }
 
 # Export to CSV
-$FinalBackUpReport | Select VeeamServer,Path, FolderName, BackupName, BackupSizeGB, BackupType | export-csv "Veeam Backup Size Report - $NowFormatted.csv" -NoTypeInformation
+$FinalBackUpReport | Select VeeamServer,Path, FolderName, BackupName, BackupSizeGB, BackupType | export-csv "Z:\Git\Veeam\Veeam Backup Size Report - $NowFormatted.csv" -NoTypeInformation
 
 # Send an Email
-Send-MailMessage -SmtpServer PANGlexch01 -To Judd@panoptics.com -From VeeamPowershell@Panoptics.com `
-    -Subject "Veeam Backup Size Report" -Attachments "Veeam Backup Size Report - $NowFormatted.csv" `
+Send-MailMessage -SmtpServer PANGlexch01 -To Andy@panoptics.com -cc "judd@panoptics.com" -From VeeamPowershell@Panoptics.com `
+    -Subject "Veeam Backup Size Report" -Attachments "Z:\Git\Veeam\Veeam Backup Size Report - $NowFormatted.csv" `
     -BodyAsHtml
 
