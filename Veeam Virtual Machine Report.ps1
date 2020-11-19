@@ -1,4 +1,17 @@
-# Start
+# Load snapin
+Add-PSSnapin VeeamPSSnapin
+
+# Set-location
+Set-location "c:\scripts\Veeam"
+
+# Set Date Variables
+$Now = get-date
+$NowMonth = (Get-Culture).DateTimeFormat.GetMonthName($now.Month)
+$NowYear = $now.Year
+
+# Other Variables
+$Server = $env:COMPUTERNAME
+
 $Obj = @()
 $BackupJobs = Get-VBRJob
 foreach ($BackupJob in $BackupJobs)
@@ -11,8 +24,9 @@ foreach ($BackupJob in $BackupJobs)
     {
         write-host "VM Name = $($VM.name)" -ForegroundColor Cyan
         $Hash = @{
+            VeeamServerName = $server
             JobName = $JobName
-            Name = $vm.Name
+            VMName = $vm.Name
             Location = $vm.location
             Enabled = $vm.VssOptions.Enabled
             ApproxSize = $vm.ApproxSizeString
@@ -24,9 +38,15 @@ foreach ($BackupJob in $BackupJobs)
 
 }
 
-$Obj | select Name, Location, Enabled, ApproxSize | export-csv Veeam03.csv -NoTypeInformation
+$AttachmentName = "Veeam VM Count for $Server - $NowMonth $NowYear.csv"
 
-explorer.exe .\
+$Obj | 
+    select VeeamServerName, VMName, Location, Enabled, ApproxSize | 
+        export-csv $AttachmentName -NoTypeInformation
+
+# Send an Email
+Send-MailMessage -SmtpServer PANGlexch01 -To "judd@panoptics.com" -From "Veeam-$Server@Panoptics.com" `
+    -Subject "Veeam VM Count for $Server - $NowMonth $NowYear" -Attachments $AttachmentName -BodyAsHtml
 
 
-# End
+
